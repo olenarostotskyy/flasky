@@ -1,6 +1,6 @@
 from app import db
 from app.models.cats import Cat
-from flask import Blueprint, jsonify, make_response,request
+from flask import Blueprint, jsonify, make_response,request,abort
 
 
 # class Cat:
@@ -54,39 +54,77 @@ def create_one_cat():
     # }
 
 
-
-
-
-
-
-
-
-# @cats_bp.route("/<cat_id>",methods=["GET"])
-# def get_one_cat(cat_id):
+#helper function to handle errors
+# def validate_cat(cat_id):
+# #handle invalid cat_id, return 404
 #     try:
-#          cat_id=int(cat_id)
-#     except ValueError:
-#         rsp={"msg":f"invalid id :{cat_id}"}
-#         return jsonify(rsp), 400
-
-    
-#     chosen_cat=None
-#     for cat in cats:
-#         if cat.id==cat_id:
-#             chosen_cat=cat
-#             break
-
+#         cat_id=int(cat_id) #converts it in int
+#     except:
+#         rsp={"message”:f”{cat_id} invalid cat id"  }
+#         return jsonify(rsp),404
+# # search for cat_id in data, return cat
+#     chosen_cat = Cat.query.get(cat_id)
+# # return 404 for non-existing planet
 #     if chosen_cat is None:
-#         return {
-#             "msg":f"Could not find the cat id {cat_id} ",
-#         },404
+#         rsp={"message”:f”{cat_id} not found"  }      
+#         return jsonify(rsp),400
 
-#     rsp={
-#         "id":chosen_cat.id,
-#         "name": chosen_cat.name,
-#         "age":chosen_cat.age,
-#         "color":chosen_cat.color
-#     }    
-#     return jsonify(rsp), 200
 
+#get cat by id
+@cats_bp.route("/<cat_id>",methods=["GET"])
+def get_one_cat(cat_id):
+    try:
+        cat_id=int(cat_id) #converts it in int
+    except ValueError:
+        rsp={"message”:f”{cat_id} invalid cat id"  }
+        return jsonify(rsp),404
+    chosen_cat=Cat.query.get(cat_id)    
+    if chosen_cat is None:
+        rsp={"message”:f”{cat_id} not found"  }
+        return jsonify(rsp),400
         
+    rsp={
+            "id":chosen_cat.id,
+            "name": chosen_cat.name,
+            "age":chosen_cat.age,
+            "color":chosen_cat.color
+    }    
+    return jsonify(rsp), 200
+
+
+
+@cats_bp.route("/<cat_id>",methods=["PUT"])
+def update_cat(cat_id):
+    try:
+      cat_id=int(cat_id)
+    except ValueError:
+        rsp={"msg":f"Invalid id: {cat_id}"}  
+        return jsonify(rsp), 400
+    chosen_cat=Cat.query.get(cat_id)
+    if chosen_cat is None:
+        rsp={"msg":f"Could not find cat id: {cat_id}"}  
+        return jsonify(rsp), 404
+    
+    db.session.delete(chosen_cat)
+    db.session.commit() # we need to commit changes after making changes to db
+    
+    return {"msg":f"Cat {chosen_cat.id} successfully updated"} ,200
+    
+
+
+@cats_bp.route("/<cat_id>",methods=["DELETE"])
+def delete_cat(cat_id):
+    try:
+        cat_id=int(cat_id)
+    except ValueError:
+        rsp={"msg":f"Invalid id: {cat_id}"}  
+        return jsonify(rsp), 400
+    chosen_cat= Cat.query.get(cat_id)
+    if chosen_cat is None:
+        rsp={"msg":f"Could not find cat id: {cat_id}"}  
+        return jsonify(rsp), 404
+    
+    db.session.delete(chosen_cat)
+    db.session.commit() # we need to commit changes after making changes to db
+
+    return {"msg":f"Cat {chosen_cat.id} successfully deleted"} ,200
