@@ -76,11 +76,11 @@ def get_one_cat(cat_id):
     try:
         cat_id=int(cat_id) #converts it in int
     except ValueError:
-        rsp={"message”:f”{cat_id} invalid cat id"  }
+        rsp={"message": f"{cat_id} invalid cat id"}
         return jsonify(rsp),404
     chosen_cat=Cat.query.get(cat_id)    
     if chosen_cat is None:
-        rsp={"message”:f”{cat_id} not found"  }
+        rsp={"message”:f”{cat_id} not found" }
         return jsonify(rsp),400
         
     rsp={
