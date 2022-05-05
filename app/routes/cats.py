@@ -1,6 +1,6 @@
 from app import db
 from app.models.cats import Cat
-from flask import Blueprint, jsonify, make_response,request,abort
+from flask import Blueprint, jsonify, make_response,request,abort, Response
 
 
 # class Cat:
@@ -75,14 +75,14 @@ def get_cat_or_abort(cat_id):
     try:
         cat_id=int(cat_id) #converts it in int
     except ValueError:
-        rsp={"message”:f”{cat_id} invalid cat id"  }
+        rsp={"message":f"{cat_id} invalid cat id"  }
         abort (make_response(jsonify(rsp),400)) 
 # search for cat_id in data, return cat
     chosen_cat = Cat.query.get(cat_id)
-# return 404 for non-existing planet
+# return 404 for non-existing cat
     if chosen_cat is None:
-        rsp={"message":f"'{cat_id}' not found"  }      
-        abort (404, make_response(jsonify(rsp)))
+        rsp={"message":f"{cat_id} not found"  }      
+        abort (make_response(jsonify(rsp),404))
     return chosen_cat
 
 
